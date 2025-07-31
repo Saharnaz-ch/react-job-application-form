@@ -14,10 +14,11 @@ export default function JobApplication() {
   );
 }
 
-//to avoid SholooghKari :)
+//to avoid mess, we create the whole Form in another component :)
 
 function Form() {
-  //we need to define all rules for each input-- more powerful than register()
+  //we need to define all rules for each input
+
   const validationSchema = Yup.object().shape({
     fullNamr: Yup.string(),
     email: Yup.string()
@@ -30,11 +31,10 @@ function Form() {
   });
 
   const {
-    //every input or select is connected using register("name", rules)
     register, //connects inputs to the form system
     handleSubmit, //handles the form submission
     //isSubmitting automatically tracks submission state
-    formState: { errors, isSubmitting }, //stores the validation errors
+    formState: { errors, isSubmitting },
     reset,
   } = useForm({
     resolver: yupResolver(validationSchema), //resolver connects Yup to react-hook-form
@@ -46,21 +46,17 @@ function Form() {
     try {
       toast.loading("Sending application...");
       await emailjs.send(
-        "service_7kufsos", //service ID => like Gmail, Outloo,...
-        "template_xht35on", //template ID => pre-designed message you create at EmailJS
+        import.meta.env.VITE_EMAILJS_SERVICE_ID, //service ID => like Gmail, Outlook...
+        import.meta.env.VITE_EMAILJS_TEMPLATE_ID, //template ID => pre-designed message you create at EmailJS
         {
           fullName: data.fullName,
           email: data.email,
           position: data.position,
-          //data.resume is an array => because file inputs return an array of SELECTED files
-          //and [0] is the first file selected
-          //?.name => gets the name of the file, BUT only if data.resume[0] EXISTS
-          //otherwise => undefined and in case of undefined, it gives "no file uploaded"
           resume: data.resume[0]?.name || "No file uploaded",
         },
-        "OYA3D1dumR3WeaHUE" //use_id or just public_key => it authenticates your frontend to send messages
+        import.meta.env.VITE_EMAILJS_PUBLIC_KEY //use_id or just public_key => it authenticates your frontend to send messages
       );
-      toast.dismiss(); //removes the Sending application... at first line
+      toast.dismiss(); //removes the "Sending application..."
       toast.success("Application submitted successfully!"); //shows a new toast instead
 
       //why?
@@ -94,15 +90,11 @@ function Form() {
             name=""
             id=""
             placeholder="example@gmail.com"
-            // "Hey React Hook Form, I want you to watch this input, and I’ll call it 'email'. Also, make sure it’s not left empty."
-            //register() function that gives back an OBJECT full of TOOLS react hool form needs to track the user typing, errors, connect to form system, etc.
+            //register() is function that gives back an OBJECT full of TOOLS react hook form needs to track the user typing, errors, connect to form system, etc.
             // ... Take all the things inside that object and put them into this input
 
             //...register() is a super-powered version of setAttribute
-            {...register("email", {
-              required: "Email is required",
-              pattern: { value: /^\S+@\S+$/i, message: "Invalid email format" },
-            })}
+            {...register("email")}
             //object returns looks like this {name: "email", onChange:...m onBlur:..., }
             //so basically the input with then look like <input name="email" onChange={} onBlur={} />
           />
@@ -118,13 +110,7 @@ function Form() {
             name=""
             id=""
             placeholder="09300000000"
-            {...register("phone", {
-              required: "phone number is required",
-              pattern: {
-                value: /^[0-9]{10,11}$/,
-                message: "Invalid phone number",
-              },
-            })}
+            {...register("phone")}
           />
           {errors.phone && (
             <p style={{ color: "red", fontSize: "10px", marginLeft: "5px" }}>
@@ -175,6 +161,10 @@ function Form() {
           </button>
         </form>
       </div>
+      {/* REMOVE THE BELOW TAG TO USE THE CODE IN YOUR PROJECT!!! */}
+      <p style={{ color: "grey", fontSize: "10px", paddingLeft: "5px" }}>
+        Created by Saharnaz_CH{" "}
+      </p>
     </div>
   );
 }
